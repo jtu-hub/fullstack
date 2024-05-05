@@ -1,4 +1,3 @@
-/* App file for exercises of part 1, ex 1.6 and above */
 import { useState } from 'react'
 
 const Header = ({title}) => {  
@@ -66,27 +65,27 @@ const StaticTable = ({header, rows}) => {
 }
 
 const Statistics = ({ratings}) => {
-  if(ratings.sum()) {
-    let rows = [
-      ["good",     ratings.good                         ],
-      ["neutral",  ratings.neutral                      ],
-      ["bad",      ratings.bad                          ],
-      ["total",    ratings.sum()                        ],
-      ["score",    ratings.score().toFixed(2)           ],
-      ["positive", ratings.positiveFeedback().toFixed(2)],
-    ];
-
+  if(!ratings.sum()) {
     return (
-      <section className="ratings">
-        <Header title="stats:" />
-        <StaticTable rows={rows} />
+      <section className='ratings'>
+        <p>Still waiting for feedback.. :S</p>
       </section>
     )
   }
 
+  let rows = [
+    ["good",     ratings.good                         ],
+    ["neutral",  ratings.neutral                      ],
+    ["bad",      ratings.bad                          ],
+    ["total",    ratings.sum()                        ],
+    ["score",    ratings.score().toFixed(2)           ],
+    ["positive", ratings.positiveFeedback().toFixed(2)],
+  ];
+
   return (
-    <section className='ratings'>
-      <p>Still waiting for feedback.. :S</p>
+    <section className="ratings">
+      <Header title="stats:" />
+      <StaticTable rows={rows} />
     </section>
   )
 }
@@ -152,8 +151,8 @@ const App = () => {
         <Button handleClick={buildHandleState(ratings, setRatings, "good")}    text={":)"}/>
         <Button handleClick={buildHandleState(ratings, setRatings, "neutral")} text={":|"}/>
         <Button handleClick={buildHandleState(ratings, setRatings, "bad")}     text={":("}/>
-        <Statistics ratings={ratings} />
       </div>
+      <Statistics ratings={ratings} />
     </div>
   )
 }

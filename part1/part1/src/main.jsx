@@ -1,8 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
-//import App_15 from './App_15';
-import App from './App';
+//Note to myself:
+//since default is imported it can be imported under any name otherwise use: 
+// "import {Component as MyNewName} from './Components'" 
+//to import the Component component from the Components file under the name MyNewName
 
-//ReactDOM.createRoot(document.getElementById('root')).render(<App_15 />);
+//import App from './CourseInfo';
+//import App from './Unicafe';
+import App from './Anecdotes';
+
 ReactDOM.createRoot(document.getElementById('root')).render(<App />);

@@ -1,5 +1,3 @@
-/* App file for exercises of part 1 up to ex 1.5 */
-
 const Header = (props) => {  
   return (
     <>
