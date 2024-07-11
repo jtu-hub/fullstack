@@ -48,17 +48,17 @@ const Content = ({data}) => {
 const Course = ({courseData}) => {
   return (
     <>
-      <Header title={courseData.title}/>
-      <Content data={courseData.data}/>
+      <Header title={courseData.name}/>
+      <Content data={courseData.parts}/>
     </>
   )
 };
 
 const App = () => {
-  const course ={
+  const courses =[{
     id: 1,
-    title: 'Half Stack application development',
-    data : [
+    name: 'Half Stack application development',
+    parts : [
       {
         id: 0,
         name: 'Fundamentals of React',
@@ -81,11 +81,26 @@ const App = () => {
         exercises: 4
       }
     ]
-  };
+  },{
+      name: 'Node.js',
+      id: 2,
+      parts: [
+        {
+          name: 'Routing',
+          exercises: 3,
+          id: 1
+        },
+        {
+          name: 'Middlewares',
+          exercises: 7,
+          id: 2
+        }
+      ]
+    }];
 
   return (
     <div>
-      <Course courseData={course} />
+      {courses.map(course => <Course courseData={course} key={course.id} />)}
     </div>
   );
 };
