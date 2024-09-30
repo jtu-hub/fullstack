@@ -1,4 +1,3 @@
-import { useReducer } from "react";
 import Course from "./components/Course.jsx";
 
 const App = () => {

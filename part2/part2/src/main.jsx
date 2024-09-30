@@ -6,8 +6,7 @@ import ReactDOM from 'react-dom/client';
 // "import {Component as MyNewName} from './Components'" 
 //to import the Component component from the Components file under the name MyNewName
 
-import App from './CourseInfo';
-//import App from './Unicafe';
-//import App from './Anecdotes';
+//import App from './CourseInfo';
+import App from './Phonebook';
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App />);
