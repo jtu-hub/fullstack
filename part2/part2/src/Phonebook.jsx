@@ -1,79 +1,75 @@
 import { useState } from "react";
 
+/**
+ * 
+ * @param {placeholder} string Text that is displayed when the input is empty
+ * @param {name} string Name of the input
+ * @param {validateInput} function (value) => {value, alert} The function used to validate the user's input passed as argument. It must return an object with the two properties as described {value, alert} 
+ * @returns a form element composed of an input field and a alert span
+ */
+const TextInput = ({placeholder, name, validateInput = undefined}) => {
+    const [newValue, setNewValue] = useState({[name]: ``, [`{name}Alert`]: ``})
+    
+    const handleNewValue = (event) => {
+        let val = event.target.value;
+
+        let {value, alert} = validateInput ? validateInput(val) : ((value) => {return {value: value, alert: ``}})(val);
+
+        setNewValue({[name]: value, [`{name}Alert`]: alert});
+    }
+
+    let dataIsValid = newValue[`{name}Alert`] === `` && newValue[name] !== ``;
+    let displayNumberAlert = dataIsValid ? {display: "none"} : {color:"red", display: "block"};
+
+    return (
+        <div>
+            <span style={displayNumberAlert}>{newValue[`{name}Alert`]}<br /></span>
+            <input data-is-valid={dataIsValid} name={name} value={newValue[name]} onChange={handleNewValue} placeholder={placeholder} />
+        </div>
+    )
+}
+
 const phoneNumberFormat = {
     "+41":  /^(0{2}|\+)41\s?(\(0\))?\s?\d{2}[\s\-]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}$/, // To meet your friend for znüni
     "+46":  /^(0{2}|\+)46\s?\(?\d{1,3}\)?[\s.-]?\d{3,4}[\s.-]?\d{4}$/,              // To meet your friend for fika 
 };
 
-const TextInput = ({value, placeholder, name, alert}) => {
+const PhoneNumberInput = ({name, placeholder = "Your phone-number <3"}) => {    
+    const validatePhoneNumber = (value) => {
+        value = value.replace(/^0{2}/, `+`)
 
-    let dataIsValid = alert === `` && value !== ``;
-    let displayNumberAlert = dataIsValid ? {display: "none"} : {color:"red", display: "block"};
-
-    return (
-        <div>
-            <span style={displayNumberAlert}>{alert}<br /></span>
-            <input data-is-valid={dataIsValid} name={name} value={value} onChange={onChange} placeholder={placeholder} />
-        </div>
-    )
-}
-
-const PhoneNumberInput = ({name}) => {
-    const [newNumber, setNewNumber] = useState({number: ``})
-    
-    const handleNewNumber = (event) => {
-        let val = event.target.value;
-
-        val = val.replace(/^0{2}/, `+`)
-
-        let key = (Object.keys(phoneNumberFormat).filter((key) => val.startsWith(key)))[0];
+        let key = (Object.keys(phoneNumberFormat).filter((key) => value.startsWith(key)))[0];
         
-        let numberAlert = ``;
-        if(key && !phoneNumberFormat[key].test(val)) 
-            numberAlert = `Invalid number format for selected country code`;
-        else if(newNumber.number === ``)
-            numberAlert = `*A number is required`
+        let alert = ``;
+        if(key && !phoneNumberFormat[key].test(value)) 
+            alert = `Invalid number format for selected country code`;
+        else if(value === ``)
+            alert = `*A number is required`
         else if(!key)
-            numberAlert = `Unknown coutry code`
+            alert = `Unknown coutry code`
         
-        setNewNumber({number: val.replace(/[^+0-9\-\s\(\)]/g, ''), numberAlert: numberAlert});
+        return {value: value.replace(/[^+0-9\-\s\(\)]/g, ''), alert: alert};
     }
     
-    let dataIsValid = newNumber.numberAlert === `` && newNumber.number !== ``;
-    let displayNumberAlert = dataIsValid ? {display: "none"} : {color:"red", display: "block"};
-
     return (
-        <div>
-            <span style={displayNumberAlert}>{newNumber.numberAlert}<br /></span>
-            <input data-is-valid={dataIsValid} name={name} value={newNumber.number} onChange={handleNewNumber} placeholder="Your Phonenumber <3" />
-        </div>
+        <TextInput name={name} validateInput={validatePhoneNumber} placeholder={placeholder}/>
     )
 }
 
-const NameInput = ({name, placeholder = "Name"}) => {
-    const [newName, setNewName] = useState({name: ``, nameAlert: ``})
-
-    const handleNewName = (event) => {
-        let val = event.target.value;
-
-        let nameAlert = ``;
-        if((/\d/).test(val) || (/[+\-*/%^]/).test(val))
-            if(( /^\d+$/).test(val))
-                nameAlert = `To us, you're much more than just a number, please enter name`;
+const NameInput = ({name, placeholder = "Enter Name..."}) => {
+    const validateName = (value) => {
+        let alert = ``;
+        if((/\d/).test(value) || (/[+\-*/%^]/).test(value))
+            if(( /^\d+$/).test(value))
+                alert = `To us, you're much more than just a number, please enter name`;
             else 
-                nameAlert = `We're not doing algebra here, please enter your name`;
+                alert = `We're not doing algebra here, please enter your name`;
 
-        setNewName({name: val, nameAlert: nameAlert});
+        return {value: value, alert: alert};
     } 
 
-    let dataIsValid = newName.nameAlert === `` && newName.name !== ``;
-    let displayNameAlert = dataIsValid ? {display: "none"} : {color:"red", display: "block"};
-
     return (
-        <div>
-            <span style={displayNameAlert}>{newName.nameAlert}<br /></span>
-            <input data-is-valid={dataIsValid} name={name} value={newName.name} onChange={handleNewName} placeholder={placeholder} />
-        </div>
+        <TextInput name={name} validateInput={validateName} placeholder={placeholder}/>
     )
 }
 
