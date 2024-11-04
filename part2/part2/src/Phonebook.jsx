@@ -125,6 +125,28 @@ const Form = ({inputList, processNewEntry = undefined}) => {
     )
 }
 
+//TODO: beautify... ugly component
+const PhonebookEntries = ({entries}) => {
+    //define filter callback
+    const [filter, setFilter] = useState("")
+
+    return (
+        <>
+        <div>
+            <p>Filter: <input type="text" onChange={(event) => setFilter(event.target.value)}/></p>
+        </div>
+        <div>
+            {entries.map(
+                (p) => {
+                    if(filter === `` || p[inputName].toLowerCase().includes(filter.toLowerCase()) || p[inputPhone].toLowerCase().includes(filter.toLowerCase()))
+                        return <li key={p.id}>{p[inputName]}{p[inputPhone] ? `: ${p[inputPhone]}` : ``}</li>
+                }
+            )}
+        </div>
+        </>
+    )
+}
+
 const App = () => {
     //define form elements
     const inputName = "phonebook-name";
@@ -133,11 +155,11 @@ const App = () => {
     const inputList = [
         <NameInput name={inputName} key={inputName} />,
         <PhoneNumberInput name={inputPhone} key={inputPhone} />,
-        <SubmitButton />
-    ]
+        <SubmitButton key={"phonebook-submit"}/>
+    ];
     
     //define form process function for new entries
-    const [persons, setPersons] = useState([]) 
+    const [persons, setPersons] = useState([]); 
     const processNewEntry = (newEntry) => {
         if(!newEntry.isValid)
             alert(`Form is invalid`);
@@ -146,25 +168,13 @@ const App = () => {
         else
             setPersons(persons.concat(newEntry)); 
     }
-    //define filter callback
-    const [filter, setFilter] = useState("")
-
+    
     return (
         <div>
             <h2>Phonebook</h2>
             <Form inputList={inputList} processNewEntry={processNewEntry}/>
             <h2>Numbers</h2>
-            <div>
-                <p>Filter: <input type="text" onChange={(event) => setFilter(event.target.value)}/></p>
-            </div>
-            <div>
-                {persons.map(
-                    (p) => {
-                        if(filter === `` || p[inputName].toLowerCase().includes(filter.toLowerCase()) || p[inputPhone].toLowerCase().includes(filter.toLowerCase()))
-                            return <li key={p.id}>{p[inputName]}{p[inputPhone] ? `: ${p[inputPhone]}` : ``}</li>
-                    }
-                )}
-            </div>
+            <PhonebookEntries entries={persons}/>
         </div>
     );
 }
