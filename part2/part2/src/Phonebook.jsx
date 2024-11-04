@@ -146,6 +146,8 @@ const App = () => {
         else
             setPersons(persons.concat(newEntry)); 
     }
+    //define filter callback
+    const [filter, setFilter] = useState("")
 
     return (
         <div>
@@ -153,7 +155,15 @@ const App = () => {
             <Form inputList={inputList} processNewEntry={processNewEntry}/>
             <h2>Numbers</h2>
             <div>
-                {persons.map(p => <li key={p.id}>{p[inputName]}{p[inputPhone] ? `: ${p[inputPhone]}` : ``}</li>)}
+                <p>Filter: <input type="text" onChange={(event) => setFilter(event.target.value)}/></p>
+            </div>
+            <div>
+                {persons.map(
+                    (p) => {
+                        if(filter === `` || p[inputName].toLowerCase().includes(filter.toLowerCase()) || p[inputPhone].toLowerCase().includes(filter.toLowerCase()))
+                            return <li key={p.id}>{p[inputName]}{p[inputPhone] ? `: ${p[inputPhone]}` : ``}</li>
+                    }
+                )}
             </div>
         </div>
     );
