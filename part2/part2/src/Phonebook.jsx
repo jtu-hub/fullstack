@@ -5,9 +5,9 @@ import { useState } from "react";
  * @param {placeholder} string Text that is displayed when the input is empty
  * @param {name} string Name of the input
  * @param {validateInput} function (value) => {value, alert} The function used to validate the user's input passed as argument. It must return an object with the two properties as described {value, alert} 
- * @returns a form element composed of an input field and a alert span
+ * @returns a form element composed of an input field and a alert span, the input is considered to be valid if the alert is an empty string
  */
-const TextInput = ({placeholder, name, validateInput = undefined}) => {
+const TextInput = ({name, placeholder = "", validateInput = undefined}) => {
     const [newValue, setNewValue] = useState({[name]: ``, [`{name}Alert`]: ``})
     
     const handleNewValue = (event) => {
@@ -29,22 +29,22 @@ const TextInput = ({placeholder, name, validateInput = undefined}) => {
     )
 }
 
-const phoneNumberFormat = {
+const phoneNumberFormats = {
     "+41":  /^(0{2}|\+)41\s?(\(0\))?\s?\d{2}[\s\-]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}$/, // To meet your friend for znüni
     "+46":  /^(0{2}|\+)46\s?\(?\d{1,3}\)?[\s.-]?\d{3,4}[\s.-]?\d{4}$/,              // To meet your friend for fika 
 };
 
-const PhoneNumberInput = ({name, placeholder = "Your phone-number <3"}) => {    
+const PhoneNumberInput = ({name, required = true, placeholder = "Your phone-number <3"}) => {    
     const validatePhoneNumber = (value) => {
         value = value.replace(/^0{2}/, `+`)
 
-        let key = (Object.keys(phoneNumberFormat).filter((key) => value.startsWith(key)))[0];
+        let key = (Object.keys(phoneNumberFormats).filter((key) => value.startsWith(key)))[0];
         
         let alert = ``;
-        if(key && !phoneNumberFormat[key].test(value)) 
-            alert = `Invalid number format for selected country code`;
-        else if(value === ``)
+        if(required && value === ``)
             alert = `*A number is required`
+        else if(key && !phoneNumberFormats[key].test(value)) 
+            alert = `Invalid number format for selected country code`;
         else if(!key)
             alert = `Unknown coutry code`
         
@@ -56,10 +56,13 @@ const PhoneNumberInput = ({name, placeholder = "Your phone-number <3"}) => {
     )
 }
 
-const NameInput = ({name, placeholder = "Enter Name..."}) => {
+const NameInput = ({name, required = true, placeholder = "Enter Name..."}) => {
     const validateName = (value) => {
         let alert = ``;
-        if((/\d/).test(value) || (/[+\-*/%^]/).test(value))
+        
+        if(required && value === "")
+            alert = `*A name is required`
+        else if((/\d/).test(value) || (/[+\-*/%^]/).test(value))
             if(( /^\d+$/).test(value))
                 alert = `To us, you're much more than just a number, please enter name`;
             else 
@@ -83,28 +86,13 @@ const SubmitButton = ({label = "Submit"}) => {
     )
 }
 
-const Form = ({inputList, onFormSubmit}) => {
-    return (
-        <>
-            <form onSubmit={onFormSubmit}>
-                {inputList}
-            </form>
-        </>
-    )
-}
-
-const App = () => {
-    const [persons, setPersons] = useState([]) 
-
-    const inputName = "phonebook-name";
-    const inputPhone = "phonebook-number";
-
-    const inputList = [
-        <NameInput name={inputName} key={inputName} />,
-        <PhoneNumberInput name={inputPhone} key={inputPhone} />,
-        <SubmitButton />
-    ]
-    
+/**
+ * A form which autocompiles on submit the values of the provided inputs into an entry object which can be processed with the processNewEntry function
+ * @param {inputList} List list of inputs that compose the form, requires at leas a submit button, for the input value to be added to the entry object it must have the name attribute set
+ * @param {processNewEntry} function (newEntry) => {} The function used to process the entry of the form upon a form-submitt, leave undefined if you want to see how the newEntry looks like in the console
+ * @returns a form with the provided input fields
+ */
+const Form = ({inputList, processNewEntry = undefined}) => {
     const onFormSubmit = (event) => {
         event.preventDefault();
 
@@ -113,8 +101,6 @@ const App = () => {
         let newEntry = formElements.reduce(
             (res, element) => {
                 if(element.name !== ``) {
-                    console.log(res.isValid, element, element.attributes["data-is-valid"] === undefined, res.isValid, res.isValid && element.attributes["data-is-valid"].value === "true" );
-                    
                     res = {
                         ...res,
                         [element.name]: element.value,
@@ -127,18 +113,44 @@ const App = () => {
             {id: `id`, isValid: true}
         );
         
+        processNewEntry ? processNewEntry(newEntry) : ((entry) => {console.log(entry)})(newEntry);
+    }
+
+    return (
+        <>
+            <form onSubmit={onFormSubmit}>
+                {inputList}
+            </form>
+        </>
+    )
+}
+
+const App = () => {
+    //define form elements
+    const inputName = "phonebook-name";
+    const inputPhone = "phonebook-number";
+
+    const inputList = [
+        <NameInput name={inputName} key={inputName} />,
+        <PhoneNumberInput name={inputPhone} key={inputPhone} />,
+        <SubmitButton />
+    ]
+    
+    //define form process function for new entries
+    const [persons, setPersons] = useState([]) 
+    const processNewEntry = (newEntry) => {
         if(!newEntry.isValid)
             alert(`Form is invalid`);
-        else if(persons.find(p => p.id === newEntry.id))
-            alert(`Entry with id ${newEntry.id} already exists`);
+        else if(persons.find(p => p[inputPhone] === newEntry[inputPhone]))
+            alert(`Entry with number ${newEntry[inputPhone]} already exists`);
         else
-            setPersons(persons.concat(newEntry));   
+            setPersons(persons.concat(newEntry)); 
     }
 
     return (
         <div>
             <h2>Phonebook</h2>
-            <Form inputList={inputList} onFormSubmit={onFormSubmit}/>
+            <Form inputList={inputList} processNewEntry={processNewEntry}/>
             <h2>Numbers</h2>
             <div>
                 {persons.map(p => <li key={p.id}>{p[inputName]}{p[inputPhone] ? `: ${p[inputPhone]}` : ``}</li>)}
