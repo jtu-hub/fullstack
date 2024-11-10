@@ -125,20 +125,35 @@ const Form = ({inputList, processNewEntry = undefined}) => {
     )
 }
 
-//TODO: beautify... ugly component
-const PhonebookEntries = ({entries}) => {
+const Filter = ({inputList, filter, setFilter}) => {
+    return (
+        <>
+            <div>
+                {inputList.map(
+                    input => {
+                        return <input type={input.type} name={input.name} key={input.name} onChange={(event) => setFilter({...filter, [event.target.name]: event.target.value})}/>
+                    }
+                )}
+            </div>
+        </>
+    )
+}
+
+const PhonebookEntries = ({inputName, inputPhone, entries}) => {
     //define filter callback
-    const [filter, setFilter] = useState("")
+    const [filter, setFilter] = useState("");
+
+    let filterInputs = [
+        {type: "text", name: "filterAll"}
+    ];
 
     return (
         <>
-        <div>
-            <p>Filter: <input type="text" onChange={(event) => setFilter(event.target.value)}/></p>
-        </div>
+        <Filter inputList={filterInputs} filter={filter} setFilter={setFilter}/>
         <div>
             {entries.map(
                 (p) => {
-                    if(filter === `` || p[inputName].toLowerCase().includes(filter.toLowerCase()) || p[inputPhone].toLowerCase().includes(filter.toLowerCase()))
+                    if(filter === `` || p[inputName].toLowerCase().includes(filter["filterAll"].toLowerCase()) || p[inputPhone].toLowerCase().includes(filter["filterAll"].toLowerCase()))
                         return <li key={p.id}>{p[inputName]}{p[inputPhone] ? `: ${p[inputPhone]}` : ``}</li>
                 }
             )}
@@ -174,7 +189,7 @@ const App = () => {
             <h2>Phonebook</h2>
             <Form inputList={inputList} processNewEntry={processNewEntry}/>
             <h2>Numbers</h2>
-            <PhonebookEntries entries={persons}/>
+            <PhonebookEntries entries={persons} inputName={inputName} inputPhone={inputPhone}/>
         </div>
     );
 }
